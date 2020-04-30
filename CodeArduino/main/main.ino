@@ -6,8 +6,22 @@
 
 // MAIN CODE
 MPU6050 imu;
+PID pid = PID(0.00005,0.0001,0);
 MotorControl motor = MotorControl(13, 12, 11, 10);
 Sonar rangeSensor = Sonar(9,8);
+
+
+double measurement(){
+  int16_t gx, gy, gz;
+  gy = imu.getRotationY();
+  Serial.println(gy);
+  return (double)gy;
+  
+}
+void command(double cmd){
+  motor.setPWM(cmd);
+}
+
 void setup() {
   Serial.begin(115200);
   
@@ -17,17 +31,16 @@ void setup() {
   // Power Sonar
   pinMode(7, OUTPUT);
   digitalWrite(7, HIGH);
-
-  motor.setPWM(.5);
-  delay(1000);
-  motor.disable();
+  pid.setCommandFunc(command);
+  pid.setMeasurementFunc(measurement);
+  pid.setGoal(0);
+  pid.setPeriod(10);
+  pid.enable();
   
   
 }
 
 void loop() {
-  int16_t ax, ay, az;
-  int16_t gx, gy, gz;
-  Serial.println(rangeSensor.getRange());
-  delay(500);
+
+  pid.run();
 }
