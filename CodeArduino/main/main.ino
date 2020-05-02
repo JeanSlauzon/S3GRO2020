@@ -1,3 +1,4 @@
+#include "Capteur_MPU6050.h"
 #include <MPU6050.h>
 #include <Sonar.h>
 #include <MotorControl.h>
@@ -5,17 +6,22 @@
 
 
 // MAIN CODE
-MPU6050 imu;
-PID pid = PID(0.00005,0.0001,0);
+Capteur_MPU6050 imu = Capteur_MPU6050();
+double angleX;
+double angleY;
+PID pid = PID(1.0,0.0,0.1);
 MotorControl motor = MotorControl(13, 12, 11, 10);
 Sonar rangeSensor = Sonar(9,8);
 
 
 double measurement(){
-  int16_t gx, gy, gz;
-  gy = imu.getRotationY();
-  Serial.println(gy);
-  return (double)gy;
+  // Get imu x and y angles
+  // Options: 0 angles from gyro only
+  //          1 using complementary filter
+  //          2 using Kalman filter
+  imu.getAngles(&angleX,&angleY, 1); 
+  Serial.println(angleX);
+  return (double)angleX;
   
 }
 void command(double cmd){
@@ -26,14 +32,14 @@ void setup() {
   Serial.begin(115200);
   
   // initialize imu
-  imu.initialize();
+  imu.init();
   
   // Power Sonar
   pinMode(7, OUTPUT);
   digitalWrite(7, HIGH);
   pid.setCommandFunc(command);
   pid.setMeasurementFunc(measurement);
-  pid.setGoal(0);
+  pid.setGoal(90);
   pid.setPeriod(10);
   pid.enable();
   
@@ -41,6 +47,5 @@ void setup() {
 }
 
 void loop() {
-
   pid.run();
 }
