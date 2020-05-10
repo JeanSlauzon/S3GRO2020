@@ -59,6 +59,19 @@ void PID::run(){
 
 }
 
+double PID::returnCommand(){
+    // if enabled and time to run iteration
+    if(millis() >= measureTime_ && enable_){
+
+        //actualDt_ = millis() - measureTime_;
+        measureTime_ = millis() + dtMs_;
+        double error = goal_ - measurementFunc_();
+        lastMeasureTime_ =  measureTime_;
+        return computeCommand(error);
+    }
+
+}
+
 double PID::computeCommand(double error){
     double CMD;
     actualDt_ = millis() - lastMeasureTime_;

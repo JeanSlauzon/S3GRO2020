@@ -43,6 +43,8 @@ class PID
     Desired value to converge to
     */
     void run();
+
+    double returnCommand();
     
     // Set methods
     
