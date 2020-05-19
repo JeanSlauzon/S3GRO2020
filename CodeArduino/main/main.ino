@@ -10,47 +10,46 @@ Capteur_MPU6050 imu = Capteur_MPU6050();
 double angleX;
 double angleY;
 
-// Uncomment for angle PID only
-PID pidAngle = PID(0.05,0.5,0.0004);
-
-// Uncomment for double PID
-//PID pidAngle = PID(20.0,10.0,1.0);
-
-PID pidDist = PID(5.5,5.0,5.0);
-double angleGoal = 88.0;
+PID pidAngle = PID(0.04, 0.0, 0.0001);
+PID pidDist = PID(0.005, 0.0, 0.0);
+double angleGoal = 180.0;
 double distanceGoal = 150.0; //mm
 
 MotorControl motor = MotorControl(13, 12, 11, 10);
-Sonar rangeSensor = Sonar(9,8);
+Sonar rangeSensor = Sonar(9, 8);
 
 
-double measurement_angle(){
+double measurement_angle() {
   // Get imu x and y angles
   // Options: 0 angles from gyro only
   //          1 using complementary filter
   //          2 using Kalman filter
-  imu.getAngles(&angleX,&angleY, 1); 
-  Serial.println(angleX);
+  imu.getAngles(&angleX, &angleY, 1);
+  if (angleX < 0.0) {
+    angleX = 360 + angleX;
+  }
+//  Serial.println(angleX);
   return (double)angleX;
-  
+
 }
 
-double measurement_distance(){
+double measurement_distance() {
   double range;
   range = rangeSensor.getRange();
+  Serial.println(range);
   return (double)range;
 }
 
-void command(double cmd){
+void command(double cmd) {
   motor.setPWM(cmd);
 }
 
 void setup() {
   Serial.begin(115200);
-  
+
   // initialize imu
   imu.init();
-  
+
   // Power Sonar
   pinMode(7, OUTPUT);
   digitalWrite(7, HIGH);
@@ -75,26 +74,30 @@ void setup() {
 void loop() {
 
   // Uncomment for angle PID only
+//  double error;
+//  error = fabs(measurement_angle() - angleGoal);
+//  if (error < 40.0) {
+//    pidAngle.run();
+//  }
+//  else {
+//    command(0.0);
+//  }
+
+  // Uncomment for double PID
   double error;
+  double dist;
+  dist = measurement_distance();
   error = fabs(measurement_angle() - angleGoal);
-  if (error < 50.0){
-    if (error < 8.0){
-      pidAngle.setGains(0.05,0.5,0.0004);
-    }
-    else{
-      pidAngle.setGains(0.05,0.5,0.0004);
-    }
-    pidAngle.run();  
+  if (error < 40.0) {
+    double angleCommand;
+    double distCommand;
+    angleCommand = pidAngle.returnCommand();
+    distCommand = pidDist.returnCommand();
+    command(0.1*distCommand + 0.9*angleCommand);
   }
-  else{
+  else {
     command(0.0);
   }
-  
-  // Uncomment for double PID
-//  double angleCommand;
-//  double distCommand;  
-//  angleCommand = pidAngle.returnCommand();
-//  distCommand = pidDist.returnCommand();
-//  command(distCommand - angleCommand);
-  
+    
+
 }
