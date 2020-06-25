@@ -66,7 +66,6 @@ void Capteur_MPU6050::init() {
   double pitch = atan2(-accX, accZ) * RAD_TO_DEG;
 #endif
 
-
   kalmanX.setAngle(roll); // Set starting angle
   kalmanY.setAngle(pitch);
   gyroXangle = roll;
@@ -139,7 +138,7 @@ void Capteur_MPU6050::updateValues(){
   while (i2cRead(0x3B, i2cData, 14));
   accX = ((i2cData[0] << 8) | i2cData[1]);
   accY = ((i2cData[2] << 8) | i2cData[3]);
-  accZ = -((i2cData[4] << 8) | i2cData[5]);
+  accZ = ((i2cData[4] << 8) | i2cData[5]);
   tempRaw = (i2cData[6] << 8) | i2cData[7];
   gyroX = (i2cData[8] << 8) | i2cData[9];
   gyroY = (i2cData[10] << 8) | i2cData[11];
@@ -203,6 +202,10 @@ void Capteur_MPU6050::updateValues(){
     gyroXangle = kalAngleX;
   if (gyroYangle < -180 || gyroYangle > 180)
     gyroYangle = kalAngleY;
+    
+  Serial.print(kalAngleX);
+  Serial.print("\t");
+  Serial.println(roll);
 }
 
 

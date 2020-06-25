@@ -138,7 +138,7 @@ void loop() {
 void PWM_Calculate()
 {  
  
-  pwm =  (Angle_Car-5 + K_Base)* KA_P   //P
+  pwm =  (Angle_Car + K_Base)* KA_P   //P
       + Gyro_Car * KA_D; 
 
      pwm_r = pwm; //
@@ -168,7 +168,7 @@ void Car_Control()
 //  pwm_r = pwm_r;
   // Serial.print(pwm_l);  Serial.print("\t"); Serial.println(pwm_r);
    
-   analogWrite(PWM_R, pwm_r>127? 127:pwm_r); // Limite le InRush current à 50% //analogWrite(PWM_R, pwm_r>255? 255:pwm_r);
+   analogWrite(PWM_R, pwm_r>255? 255:pwm_r); // Limite le InRush current à 50% //analogWrite(PWM_R, pwm_r>255? 255:pwm_r);
   
   /*
   Serial.println("pwm:"); Serial.print(pwm);
@@ -195,9 +195,9 @@ void Init()
  
   pwm = 0;pwm_l = 0;pwm_r = 0;
    
-  KA_P = 50.0;
-  KA_D = 1.5;  // 3.5;
-  K_Base = 6.7;
+  KA_P = 40.0;
+  KA_D = 1.0;  ;
+  K_Base = 0;
   
 }
 

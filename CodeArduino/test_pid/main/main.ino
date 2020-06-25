@@ -67,6 +67,7 @@ void loop() {
 
   last_err = error;
   last_t = t;
+  delay(10);
 }
 
 

@@ -47,12 +47,12 @@ void endPulse();
 void startPulse();
 void command(double cmd);
 
-double Kp = 0.08;
-double Ki = 0.0;
+double Kp = 0.4;
+double Ki = 0.1;
 double Kd = 0.0;
 
 PID pidAngle = PID(Kp, Ki, Kd);
-double angleGoal = 175.5;
+double angleGoal = 0;
 double distanceGoal = 150.0; //mm
 
 /*---------------------------- fonctions "Main" -----------------------------*/
@@ -78,7 +78,7 @@ void setup() {
   pidAngle.setCommandFunc(command);
   pidAngle.setMeasurementFunc(measurement_angle);
   pidAngle.setGoal(angleGoal);
-  pidAngle.setPeriod(20);
+  pidAngle.setPeriod(10);
   pidAngle.setEpsilon(0.0);
   pidAngle.enable();
 }
@@ -189,8 +189,5 @@ double measurement_angle() {
   //          1 using complementary filter
   //          2 using Kalman filter
   imu_.getAngles(&angleX, &angleY, 2);
-  if (angleX < 0.0) {
-    angleX = 360 + angleX;
-  }
   return (double)angleX;
 }
